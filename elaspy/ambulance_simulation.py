@@ -1028,6 +1028,18 @@ def ambulance_aid_process(
         )
     )
 
+    if SIMULATION_PARAMETERS["TELEPORT_TO_BASE"]:
+        # First send it back to base, only then handle patients from the queue.
+        yield env.process(
+        ambulance_drive_process(
+            env,
+            ambulance,
+            charging_stations,
+            SIMULATION_PARAMETERS,
+            SIMULATION_DATA,
+        )
+        )
+
     while len(patient_queue) > 0:
         if SIMULATION_PARAMETERS["PRINT"]:
             print(f"w_patient loop for ambulance {ambulance.ambulance_ID}.")
