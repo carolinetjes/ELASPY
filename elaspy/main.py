@@ -205,7 +205,7 @@ BASE_LOCATIONS_FILE: str = "RAVU_base_locations_Utrecht_2021.csv"
 AMBULANCE_BASE_LOCATIONS_FILE: str = (
     "Base_Locations_Ambulances_MEXCLP_21_22_20.csv"
 )
-SCENARIO: str = "FB1_FH1"
+SCENARIO: str = "Diesel" # "FB1_FH1"
 CHARGING_SCENARIO_FILE: str = f"charging_scenario_21_22_{SCENARIO}.csv"
 SIMULATION_PATIENT_OUTPUT_FILE_NAME: str = f"Patient_df_{SCENARIO}"
 SIMULATION_AMBULANCE_OUTPUT_FILE_NAME: str = f"Ambulance_df_{SCENARIO}"
@@ -234,9 +234,9 @@ PROB_GO_TO_HOSPITAL: float | None = 0.6300
 CALL_LAMBDA: float | None = 1 / 7.75
 AID_PARAMETERS: list[float | int] = [0.38, -10.01, 37.00, 88]
 DROP_OFF_PARAMETERS: list[float | int] | None = [0.39, -8.25, 35.89, 88]
-ENGINE_TYPE: str = "electric"
-IDLE_USAGE: float | None = 5  # kW
-DRIVING_USAGE: float | None = 0.4  # kWh/km
+ENGINE_TYPE: str = "diesel"
+IDLE_USAGE: float | None = None # 5  # kW for electric
+DRIVING_USAGE: float | None = None # choose  0.4  # kWh/km for electric
 BATTERY_CAPACITY: float
 if ENGINE_TYPE == "electric":
     BATTERY_CAPACITY = 150.0
@@ -245,8 +245,8 @@ else:
 NO_SIREN_PENALTY: float = 0.95
 LOAD_INPUT_DATA: bool = False
 CRN_GENERATOR: str | None = "Generator"
-INTERVAL_CHECK_WP: float | None = 1
-TIME_AFTER_LAST_ARRIVAL: float | None = 100
+INTERVAL_CHECK_WP: float | None = None #1
+TIME_AFTER_LAST_ARRIVAL: float | None = None #100
 AT_BOUNDARY: float = 60.0
 FT_BOUNDARY: float = 720.0
 ##############################Output Parameters################################
@@ -255,7 +255,7 @@ PRINT_STATISTICS: bool = False
 PLOT_FIGURES: bool = False
 
 SAVE_PRINTS_TXT: bool = False
-SAVE_OUTPUT: bool = False
+SAVE_OUTPUT: bool = True 
 SAVE_PLOTS: bool = False
 SAVE_DFS: bool = False
 
