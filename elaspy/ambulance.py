@@ -957,6 +957,8 @@ class Ambulance:
                     ]
                     / SIMULATION_PARAMETERS["NO_SIREN_PENALTY"]
                 )
+                if SIMULATION_PARAMETERS["TELEPORT_TO_BASE"]:
+                    to_base_station_driving_time = 0 
                 if SIMULATION_PARAMETERS["PRINT"]:
                     print(
                         f"{self.env.now}: Ambulance {self.ambulance_ID} "

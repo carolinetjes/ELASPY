@@ -136,6 +136,10 @@ AT_BOUNDARY : float
     The warm-up period (in minutes) for the busy fraction calculation.
 FT_BOUNDARY : float
     The cool-down period (in minutes) for the busy fraction calculation.
+TELEPORT_TO_BASE : bool
+    If true, the ambulance, when becoming idle again, is immediately at its base, 
+    in zero amount of travel time. If electric, this does not change the amount 
+    of electricity to get there, as electricity is based on distance and not time.
 PRINT : bool
     If ``True``, debug prints are provided that clarify the simulation process.
 PRINT_STATISTICS : bool
@@ -249,13 +253,14 @@ INTERVAL_CHECK_WP: float | None = None #1
 TIME_AFTER_LAST_ARRIVAL: float | None = None #100
 AT_BOUNDARY: float = 60.0
 FT_BOUNDARY: float = 720.0
+TELEPORT_TO_BASE: bool = True
 ##############################Output Parameters################################
 PRINT: bool = False
 PRINT_STATISTICS: bool = False
 PLOT_FIGURES: bool = False
 
 SAVE_PRINTS_TXT: bool = False
-SAVE_OUTPUT: bool = True 
+SAVE_OUTPUT: bool = False 
 SAVE_PLOTS: bool = False
 SAVE_DFS: bool = False
 
@@ -353,6 +358,7 @@ SIMULATION_PARAMETERS: dict[str, Any] = {
     "EMP_QUANTILE_RESPONSE_TIMES_FILE_NAME": EMP_QUANTILE_RESPONSE_TIMES_FILE_NAME,
     "AT_BOUNDARY": AT_BOUNDARY,
     "FT_BOUNDARY": FT_BOUNDARY,
+    "TELEPORT_TO_BASE": TELEPORT_TO_BASE,
     "BUSY_FRACTIONS_FILE_NAME": BUSY_FRACTIONS_FILE_NAME,
 }
 SIMULATION_DATA: dict[str, Any] = {
