@@ -512,6 +512,7 @@ def charging_stations_initialization(
     charging_stations_hospitals = {}
     charging_stations_bases = {}
     for index, row in SIMULATION_DATA["CHARGING_STATIONS_SCENARIO"].iterrows():
+        #your first column needs to contain strings, not integers. So a postal code followed by a B (for base) or an H (for hospital)
         if "H" in index:
             if (
                 row["Number of fast chargers"] != 0

@@ -197,7 +197,7 @@ from plot_functions import (
 START_SEED_VALUE: int | None = 110
 ################################Directories####################################
 ROOT_DIRECTORY: str = os.path.dirname(os.path.dirname(__file__))
-DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "data/")
+DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "dataToyExample/")
 SIMULATION_INPUT_DIRECTORY: str | None = None
 SIMULATION_OUTPUT_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "results/")
 #################################File names####################################
@@ -207,7 +207,7 @@ NODES_FILE: str = "nodes_Utrecht_2021.csv"
 HOSPITAL_FILE: str = "Hospital_Postal_Codes_Utrecht_2021.csv"
 BASE_LOCATIONS_FILE: str = "RAVU_base_locations_Utrecht_2021.csv"
 AMBULANCE_BASE_LOCATIONS_FILE: str = (
-    "Base_Locations_Ambulances_MEXCLP_21_22_20.csv"
+    "Base_Locations.csv"
 )
 SCENARIO: str = "Diesel" # "FB1_FH1"
 CHARGING_SCENARIO_FILE: str = f"charging_scenario_21_22_{SCENARIO}.csv"
@@ -233,7 +233,7 @@ NUM_RUNS: int = 1
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
 PROCESS_TIME: float | None = 720
-NUM_AMBULANCES: int = 20
+NUM_AMBULANCES: int = 10
 PROB_GO_TO_HOSPITAL: float | None = 0.6300
 CALL_LAMBDA: float | None = 1 / 7.75
 AID_PARAMETERS: list[float | int] = [0.38, -10.01, 37.00, 88]
@@ -260,7 +260,7 @@ PRINT_STATISTICS: bool = False
 PLOT_FIGURES: bool = False
 
 SAVE_PRINTS_TXT: bool = False
-SAVE_OUTPUT: bool = False 
+SAVE_OUTPUT: bool = True 
 SAVE_PLOTS: bool = False
 SAVE_DFS: bool = False
 
