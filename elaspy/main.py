@@ -369,6 +369,7 @@ SIMULATION_DATA: dict[str, Any] = {
 if __name__ == "__main__":
     start_time_script = datetime.datetime.now()
 
+    if "Toy" in DATA_DIRECTORY:
     copy_simulation_parameters = copy.deepcopy(SIMULATION_PARAMETERS)
     check_input_parameters(SIMULATION_PARAMETERS)
 
