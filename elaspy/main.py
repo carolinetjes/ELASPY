@@ -229,13 +229,13 @@ DROP_OFF_TIMES_FILE: str | None = None
 LOCATION_IDS_FILE: str | None = None
 TO_HOSPITAL_FILE: str | None = None
 ############################Simulation parameters##############################
-NUM_RUNS: int = 1
+NUM_RUNS: int = 2
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
-PROCESS_TIME: float | None = 720
+PROCESS_TIME: float | None =  720 #end of simulation horizon. 720 mins = 12 hours
 NUM_AMBULANCES: int = 10
 PROB_GO_TO_HOSPITAL: float | None = 0.6300
-CALL_LAMBDA: float | None = 1 / 7.75
+CALL_LAMBDA: float | None = 1/12 #1/7.75
 AID_PARAMETERS: list[float | int] = [0.38, -10.01, 37.00, 88]
 DROP_OFF_PARAMETERS: list[float | int] | None = [0.39, -8.25, 35.89, 88]
 ENGINE_TYPE: str = "diesel"
@@ -370,6 +370,11 @@ if __name__ == "__main__":
     start_time_script = datetime.datetime.now()
 
     if "Toy" in DATA_DIRECTORY:
+        if NUM_AMBULANCES != 10 or CALL_LAMBDA != 1 / 12:
+            raise Exception(
+                "I think you want to run the toy example, but either number of ambulances is not 10, or the arrival rate is not 1/12 which we agreed it should be."
+            )
+
     copy_simulation_parameters = copy.deepcopy(SIMULATION_PARAMETERS)
     check_input_parameters(SIMULATION_PARAMETERS)
 
