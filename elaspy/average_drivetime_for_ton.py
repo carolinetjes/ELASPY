@@ -17,7 +17,7 @@ TRAVEL_TIMES_DF = pd.read_csv(  f"{DATA_DIRECTORY}{TRAVEL_TIMES_FILE}",        i
 TRAVEL_TIMES_DF.index = TRAVEL_TIMES_DF.index.astype(int)
 TRAVEL_TIMES_DF.columns = TRAVEL_TIMES_DF.columns.astype(int)
 
-def lookUpDriveTime(fromPC, toPC, switch=True): #switch interprets the matrix tranposed   
+def lookUpDriveTime(fromPC, toPC, switch=False): #switch interprets the matrix tranposed   
    drive_time = 0
    if switch:
        drive_time = TRAVEL_TIMES_DF.loc[toPC,fromPC] 
