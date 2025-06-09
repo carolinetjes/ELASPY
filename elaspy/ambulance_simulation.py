@@ -210,7 +210,7 @@ def initialize_simulation(
             )
 
         SIMULATION_PARAMETERS["NUM_CALLS"] = len(interarrival_times)
-        if SIMULATION_PARAMETERS["NUM_CALLS"] <= 0:
+        if SIMULATION_PARAMETERS["NUM_CALLS"] < 0:
             raise Exception(
                 "NUM_CALLS is smaller or equal to 0. This indicates"
                 " PROCESS_TIME is too small or PROCESS_NUM_CALLS is"

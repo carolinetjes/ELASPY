@@ -230,7 +230,7 @@ DROP_OFF_TIMES_FILE: str | None = None
 LOCATION_IDS_FILE: str | None = None
 TO_HOSPITAL_FILE: str | None = None
 ############################Simulation parameters##############################
-NUM_RUNS: int = 2
+NUM_RUNS: int = 100000
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
 PROCESS_TIME: float | None =  100 #end of simulation horizon agreed with Ton. Nanne used 720 (720 mins = 12 hours)
@@ -483,10 +483,6 @@ if __name__ == "__main__":
                 "The running time for saving the data is: "
                 f"{datetime.datetime.now()-start_time_saving}."
             )
-        if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
-            transient_probabilities = np.stack(transient_probabilities)
-            print(f"cj transient_probabilities = {transient_probabilities}")
-            
 
         mean_response_times[run_nr] = np.mean(df_patient["response_time"])
         emp_quantile_response_times[run_nr] = np.min(
@@ -506,6 +502,14 @@ if __name__ == "__main__":
         f"all runs is: {m_mean_response_times}."
     )
     if NUM_RUNS > 1:
+        if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
+            transient_probabilities = np.stack(transient_probabilities) 
+            transient = np.mean(transient_probabilities, axis=1) 
+            np.set_printoptions(threshold=np.inf)  # disables truncation
+            print(f"Estimates of transient probabilities: \n{transient}")
+            np.set_printoptions(threshold=1000)  #restore default behavior afterward
+
+
         CI_error_m_mean_response_times = scipy.stats.t.ppf(
             0.975, NUM_RUNS - 1
         ) * (np.std(mean_response_times, ddof=1) / np.sqrt(NUM_RUNS))
