@@ -173,6 +173,7 @@ import os
 import sys
 import copy
 import scipy
+from scipy import stats
 import datetime
 import numpy as np
 import pandas as pd
@@ -232,7 +233,7 @@ TO_HOSPITAL_FILE: str | None = None
 NUM_RUNS: int = 2
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
-PROCESS_TIME: float | None =  720 #end of simulation horizon. 720 mins = 12 hours
+PROCESS_TIME: float | None =  100 #end of simulation horizon agreed with Ton. Nanne used 720 (720 mins = 12 hours)
 NUM_AMBULANCES: int = 10
 PROB_GO_TO_HOSPITAL: float | None = 0.6300
 CALL_LAMBDA: float | None = 1/12 #1/7.75
@@ -260,9 +261,12 @@ PRINT_STATISTICS: bool = False
 PLOT_FIGURES: bool = False
 
 SAVE_PRINTS_TXT: bool = False
-SAVE_OUTPUT: bool = True 
+SAVE_OUTPUT: bool = False 
 SAVE_PLOTS: bool = False
 SAVE_DFS: bool = False
+
+#for EMSPLEX:
+SAVE_TRANSIENT_PROBABILITIES: bool = True # use in combination with PROCESS_TYPE = Time, so you know in advance how big of an array to initialize
 
 DATA_COLUMNS_PATIENT: list["str"] = [
     "patient_ID",
@@ -351,6 +355,7 @@ SIMULATION_PARAMETERS: dict[str, Any] = {
     "PLOT_FIGURES": PLOT_FIGURES,
     "SAVE_PLOTS": SAVE_PLOTS,
     "SAVE_DFS": SAVE_DFS,
+    "SAVE_TRANSIENT_PROBABILITIES": SAVE_TRANSIENT_PROBABILITIES,
     "PRINT_STATISTICS": PRINT_STATISTICS,
     "SIMULATION_PRINTS_FILE_NAME": SIMULATION_PRINTS_FILE_NAME,
     "SAVE_PRINTS_TXT": SAVE_PRINTS_TXT,
@@ -365,14 +370,15 @@ SIMULATION_DATA: dict[str, Any] = {
     "DATA_COLUMNS_PATIENT": DATA_COLUMNS_PATIENT,
     "DATA_COLUMNS_AMBULANCE": DATA_COLUMNS_AMBULANCE,
 }
+
 ####################################Run########################################
 if __name__ == "__main__":
     start_time_script = datetime.datetime.now()
 
     if "Toy" in DATA_DIRECTORY:
-        if NUM_AMBULANCES != 10 or CALL_LAMBDA != 1 / 12:
+        if NUM_AMBULANCES != 10 or CALL_LAMBDA != 1 / 12 or PROCESS_TIME != 100:
             raise Exception(
-                "I think you want to run the toy example, but either number of ambulances is not 10, or the arrival rate is not 1/12 which we agreed it should be."
+                "I think you want to run the toy example, but ambu, lambda, horizon = {NUM_AMBULANCES},{CALL_LAMBDA},{PROCESS_TIME}  while we agreed it should be 10, 1/12, 100 mins."
             )
 
     copy_simulation_parameters = copy.deepcopy(SIMULATION_PARAMETERS)
@@ -390,10 +396,12 @@ if __name__ == "__main__":
             "wt",
         )
 
+
     mean_response_times: np.ndarray = np.zeros((NUM_RUNS))
     emp_quantile_response_times: np.ndarray = np.zeros((NUM_RUNS))
     busy_fractions: np.ndarray = np.zeros(NUM_RUNS)
     running_times: np.ndarray = np.zeros(NUM_RUNS)
+    transient_probabilities = []
 
     for run_nr in range(NUM_RUNS):
         print(f"Run nr: {run_nr}.")
@@ -425,6 +433,10 @@ if __name__ == "__main__":
             "The running time for creating the dfs is: "
             f"{datetime.datetime.now()-start_time_df}."
         )
+
+        #store the transient observations of 1(base has availability) or 0 (base empty):
+        if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
+            transient_probabilities.append(SIMULATION_DATA["transient_probabilities"]) #cj todo find the thing to append
 
         # Plot simulation output
         start_time_plots_stats = datetime.datetime.now()
@@ -471,6 +483,10 @@ if __name__ == "__main__":
                 "The running time for saving the data is: "
                 f"{datetime.datetime.now()-start_time_saving}."
             )
+        if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
+            transient_probabilities = np.stack(transient_probabilities)
+            print(f"cj transient_probabilities = {transient_probabilities}")
+            
 
         mean_response_times[run_nr] = np.mean(df_patient["response_time"])
         emp_quantile_response_times[run_nr] = np.min(
@@ -558,4 +574,5 @@ if __name__ == "__main__":
         "\nRunning the complete main.py script takes: "
         f"{datetime.datetime.now()-start_time_script}."
     )
+
     print("\007")

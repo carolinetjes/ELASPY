@@ -484,7 +484,8 @@ def run_simulation(
     env.run()
     
     if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
-        print(f"transient_probs = {transient_probs.value}")
+        #now the run is done, we can access the value of the transient_probs simpy object
+        SIMULATION_DATA["transient_probabilities"] = transient_probs.value
 
     consistencyChecks(copy_simulation_data,SIMULATION_DATA,patient_queue)
 
