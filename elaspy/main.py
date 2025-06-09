@@ -177,6 +177,7 @@ from scipy import stats
 import datetime
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from ambulance_simulation import run_simulation
 from input_output_functions import (
@@ -504,11 +505,32 @@ if __name__ == "__main__":
     if NUM_RUNS > 1:
         if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
             transient_probabilities = np.stack(transient_probabilities) 
-            transient = np.mean(transient_probabilities, axis=1) 
+            #print(f"transient_probabilities shape after stacking: {transient_probabilities.shape}")
+            mean_across_runs = np.mean(transient_probabilities, axis=0)
             np.set_printoptions(threshold=np.inf)  # disables truncation
-            print(f"Estimates of transient probabilities: \n{transient}")
-            np.set_printoptions(threshold=1000)  #restore default behavior afterward
+            print(f"Estimates of transient probabilities: \n{mean_across_runs}")
+            std_err = stats.sem(transient_probabilities, axis=0)
+            confidence = 0.95  # 95% confidence intervals using t-distribution
+            df = transient_probabilities.shape[0] - 1  # degrees of freedom 
+            t_crit = stats.t.ppf((1 + confidence) / 2., df)  # close to 1.96 for large df
+            
+            margin_of_error = t_crit * std_err
+            lower = mean_across_runs - margin_of_error
+            upper = mean_across_runs + margin_of_error
+            time = np.arange(transient_probabilities.shape[1])
+            plt.figure(figsize=(10, 5))
+            for b in range(2):
+                plt.plot(time, mean_across_runs[:, b], label=f"Base {b} Mean")
+                plt.fill_between(time, lower[:, b], upper[:, b], alpha=0.3, label=f"Base {b} 95% CI")
 
+            plt.xlabel("Time")
+            plt.ylabel("Probability")
+            plt.title("Transient Probabilities with 95% Confidence Intervals")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
+            
+            np.set_printoptions(threshold=1000)  #restore default behavior afterward
 
         CI_error_m_mean_response_times = scipy.stats.t.ppf(
             0.975, NUM_RUNS - 1
