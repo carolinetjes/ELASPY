@@ -11,11 +11,11 @@ from typing import Any
 from ambulance import Ambulance
 from patient import Patient
 from collections import deque
+from transient_probabilities import measure_transient_probabilities
 from coordinate_methods import (
     calculate_new_coordinate,
     select_closest_location_ID,
 )
-
 
 def initialize_simulation(
     SIMULATION_PARAMETERS: dict[str, Any], SIMULATION_DATA: dict[str, Any]
@@ -216,7 +216,7 @@ def initialize_simulation(
                 " PROCESS_TIME is too small or PROCESS_NUM_CALLS is"
                 " smaller or equal to 0. Please make a change."
             )
-
+       
         on_site_aid_times = generate_service_times(
             SIMULATION_PARAMETERS["AID_PARAMETERS"][0],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][1],
@@ -322,8 +322,7 @@ def generate_service_times(
         The generated service times.
 
     """
-
-    service_times = np.zeros(size)
+    service_times = np.zeros(size) 
 
     for i in np.arange(size):
         service_time = rng.lognormal(mean=np.log(scale), sigma=s, size=1) + loc
@@ -383,6 +382,33 @@ def generate_interarrival_times_process_type_time(
 
     return interarrival_times
 
+def consistencyChecks(copy_simulation_data,SIMULATION_DATA,patient_queue):
+    if len(patient_queue) != 0:
+        raise Exception(f"The patient_queue should be empty, but there are {len(patient_queue)} waiting patients." )
+    
+    for key in copy_simulation_data.keys():
+        if key in [
+            "output_ambulance",
+            "output_patient",
+            "nr_times_no_fast_no_regular_available",
+            "TIME_LAST_ARRIVAL",
+        ]:
+            # These objects are changed in the simulation.
+            pass
+        elif type(copy_simulation_data[key]) == pd.DataFrame:
+            pd.testing.assert_frame_equal(
+                copy_simulation_data[key],
+                SIMULATION_DATA[key],
+                rtol=1e-20,
+                atol=1e-20,
+            )
+        elif copy_simulation_data[key] != SIMULATION_DATA[key]:
+            raise Exception(
+                "The SIMULATION_DATA were altered during "
+                "the simulation. This should not happen. Error."
+            )
+        return
+
 
 def run_simulation(
     SIMULATION_PARAMETERS: dict[str, Any], SIMULATION_DATA: dict[str, Any]
@@ -411,7 +437,6 @@ def run_simulation(
         simulation run.
 
     """
-
     (
         location_IDs,
         simulation_times,
@@ -423,6 +448,10 @@ def run_simulation(
     ) = initialize_simulation(SIMULATION_PARAMETERS, SIMULATION_DATA)
 
     copy_simulation_data = copy.deepcopy(SIMULATION_DATA)
+    transient_probs = []
+    if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
+        transient_probs = env.process(measure_transient_probabilities(env, SIMULATION_PARAMETERS, SIMULATION_DATA, ambulances)) 
+        #this will hold a simpy object, the value of which will only be available after the run is done, see further down in this file
 
     env.process(
         patient_generator(
@@ -453,33 +482,13 @@ def run_simulation(
         )
 
     env.run()
-    if len(patient_queue) != 0:
-        raise Exception(
-            "The patient_queue should be empty, but there are "
-            f"{len(patient_queue)} waiting patients."
-        )
+    
+    if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
+        print(f"transient_probs = {transient_probs.value}")
 
-    for key in copy_simulation_data.keys():
-        if key in [
-            "output_ambulance",
-            "output_patient",
-            "nr_times_no_fast_no_regular_available",
-            "TIME_LAST_ARRIVAL",
-        ]:
-            # These objects are changed in the simulation.
-            pass
-        elif type(copy_simulation_data[key]) == pd.DataFrame:
-            pd.testing.assert_frame_equal(
-                copy_simulation_data[key],
-                SIMULATION_DATA[key],
-                rtol=1e-20,
-                atol=1e-20,
-            )
-        elif copy_simulation_data[key] != SIMULATION_DATA[key]:
-            raise Exception(
-                "The SIMULATION_DATA were altered during "
-                "the simulation. This should not happen. Error."
-            )
+    consistencyChecks(copy_simulation_data,SIMULATION_DATA,patient_queue)
+
+    
 
 
 def charging_stations_initialization(
