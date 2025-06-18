@@ -232,10 +232,10 @@ DROP_OFF_TIMES_FILE: str | None = None
 LOCATION_IDS_FILE: str | None = None
 TO_HOSPITAL_FILE: str | None = None
 ############################Simulation parameters##############################
-NUM_RUNS: int = 15000
+NUM_RUNS: int = 3000
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
-PROCESS_TIME: float | None =  100 #end of simulation horizon agreed with Ton. Nanne used 720 (720 mins = 12 hours)
+PROCESS_TIME: float | None =  120 #end of simulation horizon agreed with Ton. Nanne used 720 (720 mins = 12 hours)
 NUM_AMBULANCES: int = 10
 PROB_GO_TO_HOSPITAL: float | None = 0.6300
 CALL_LAMBDA: float | None = 5/60   #4/60   #1/7.75
@@ -378,9 +378,9 @@ if __name__ == "__main__":
     start_time_script = datetime.datetime.now()
 
     if "Toy" in DATA_DIRECTORY:
-        if NUM_AMBULANCES != 10 or CALL_LAMBDA != 5/60 or PROCESS_TIME != 100:
+        if NUM_AMBULANCES != 10 or CALL_LAMBDA != 5/60 or PROCESS_TIME != 120:
             raise Exception(
-                "I think you want to run the toy example, but ambu, lambda, horizon = {NUM_AMBULANCES},{CALL_LAMBDA},{PROCESS_TIME}  while we agreed it should be 10, 1/12, 100 mins."
+                "I think you want to run the toy example, but ambu, lambda, horizon = {NUM_AMBULANCES},{CALL_LAMBDA},{PROCESS_TIME}  while we agreed it should be 10, 5/60 (=5 per hour), 120 mins."
             )
 
     copy_simulation_parameters = copy.deepcopy(SIMULATION_PARAMETERS)
