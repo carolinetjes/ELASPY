@@ -591,7 +591,7 @@ def check_input_parameters(SIMULATION_PARAMETERS: dict[str, Any]) -> None:
 
     if (
         not SIMULATION_PARAMETERS["LOAD_INPUT_DATA"]
-        and SIMULATION_PARAMETERS["CALL_LAMBDA"] <= 0
+        and SIMULATION_PARAMETERS["CALL_LAMBDA"] < 0 # equal to zero is allowed, then we use time-varying lambda
     ):
         raise Exception(
             "The value of CALL_LAMBDA should be larger than "

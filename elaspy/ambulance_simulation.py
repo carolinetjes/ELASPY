@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import sys
 import copy
 import simpy as sp
 import numpy as np
@@ -16,6 +16,7 @@ from coordinate_methods import (
     calculate_new_coordinate,
     select_closest_location_ID,
 )
+import time_varying_lambda 
 
 def initialize_simulation(
     SIMULATION_PARAMETERS: dict[str, Any], SIMULATION_DATA: dict[str, Any]
@@ -351,6 +352,8 @@ def generate_interarrival_times_process_type_time(
         ``CALL_LAMBDA`` are at least necessary. See ``main.py`` for parameter
         explanations.
 
+        If CALL_LAMBDA == 0 then it means we'll use the process defined in time_varying_lambda.py
+
     Raises
     ------
     Exception
@@ -366,10 +369,15 @@ def generate_interarrival_times_process_type_time(
     interarrival_times = np.empty(0, dtype=float)
     interarrival_sum = 0.0
     while interarrival_sum <= SIMULATION_PARAMETERS["PROCESS_TIME"]:
-        interarrival_times = np.append(
-            interarrival_times,
-            rng.exponential(1 / SIMULATION_PARAMETERS["CALL_LAMBDA"]),
-        )
+        interarrival_time = 0 #init
+        if SIMULATION_PARAMETERS["CALL_LAMBDA"] > 0 :
+            interarrival_time = rng.exponential(1 / SIMULATION_PARAMETERS["CALL_LAMBDA"])
+            #print(f'interarrival_time = ' ,interarrival_time)
+        else:
+            interarrival_time = time_varying_lambda.get_next_call_arrival_time(interarrival_sum, rng) - interarrival_sum
+    
+
+        interarrival_times = np.append(interarrival_times,interarrival_time,) 
         interarrival_sum = np.sum(interarrival_times)
 
     # Remove last patient, as its arrival time will exceed PROCESS_TIME.
