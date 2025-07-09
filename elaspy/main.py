@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#region Nanne's multi-line comment description
 """
 This is the main interface of the simulator.
 
@@ -167,6 +168,7 @@ DATA_COLUMNS_PATIENT : list[str]
 DATA_COLUMNS_AMBULANCE : list[str]
     The columns for the ambulance DataFrame.
 """
+#endregion
 from typing import Any
 
 import os
@@ -197,12 +199,24 @@ from plot_functions import (
 
 import emsplex_results
 
+ROOT_DIRECTORY: str = os.path.dirname(os.path.dirname(__file__))
+
+###################################EMSplex relevant settings ########################################
+DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "dataToyExample/")
+AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_8_2.csv")
+
+HAVE_A_QUEUE: bool = True # if no queue, calls arriving when all ambu's are busy, are lost
+
+NUM_RUNS: int = 30000
+PROCESS_TIME: float | None =  180 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
+NUM_AMBULANCES: int = 10
+CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60   #4/60   #1/7.75
+TELEPORT_TO_BASE: bool = True
+SAVE_TRANSIENT_PROBABILITIES: bool = True # use in combination with PROCESS_TYPE = Time, so you know in advance how big of an array to initialize
 
 ###################################Seed########################################
 START_SEED_VALUE: int | None = 110
 ################################Directories####################################
-ROOT_DIRECTORY: str = os.path.dirname(os.path.dirname(__file__))
-DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "dataToyExample/")
 SIMULATION_INPUT_DIRECTORY: str | None = None
 SIMULATION_OUTPUT_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "results/")
 #################################File names####################################
@@ -211,9 +225,7 @@ DISTANCE_FILE: str = "distance_matrix_2022.csv"
 NODES_FILE: str = "nodes_Utrecht_2021.csv"
 HOSPITAL_FILE: str = "Hospital_Postal_Codes_Utrecht_2021.csv"
 BASE_LOCATIONS_FILE: str = "RAVU_base_locations_Utrecht_2021.csv"
-AMBULANCE_BASE_LOCATIONS_FILE: str = (
-    "Base_Locations_8_2.csv"
-)
+
 SCENARIO: str = "Diesel" # "FB1_FH1"
 CHARGING_SCENARIO_FILE: str = f"charging_scenario_21_22_{SCENARIO}.csv"
 SIMULATION_PATIENT_OUTPUT_FILE_NAME: str = f"Patient_df_{SCENARIO}"
@@ -234,13 +246,9 @@ DROP_OFF_TIMES_FILE: str | None = None
 LOCATION_IDS_FILE: str | None = None
 TO_HOSPITAL_FILE: str | None = None
 ############################Simulation parameters##############################
-NUM_RUNS: int = 300
 PROCESS_TYPE: str = "Time"
 PROCESS_NUM_CALLS: int | None = None
-PROCESS_TIME: float | None =  1440 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
-NUM_AMBULANCES: int = 10
 PROB_GO_TO_HOSPITAL: float | None = 0.6300
-CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60   #4/60   #1/7.75
 AID_PARAMETERS: list[float | int] = [0.38, -10.01, 37.00, 88]
 DROP_OFF_PARAMETERS: list[float | int] | None = [0.39, -8.25, 35.89, 88]
 ENGINE_TYPE: str = "diesel"
@@ -258,7 +266,6 @@ INTERVAL_CHECK_WP: float | None = None #1
 TIME_AFTER_LAST_ARRIVAL: float | None = None #100
 AT_BOUNDARY: float = 60.0
 FT_BOUNDARY: float = 720.0
-TELEPORT_TO_BASE: bool = True
 ##############################Output Parameters################################
 PRINT: bool = False
 PRINT_STATISTICS: bool = False
@@ -268,9 +275,6 @@ SAVE_PRINTS_TXT: bool = False
 SAVE_OUTPUT: bool = False 
 SAVE_PLOTS: bool = False
 SAVE_DFS: bool = False
-
-#for EMSPLEX:
-SAVE_TRANSIENT_PROBABILITIES: bool = True # use in combination with PROCESS_TYPE = Time, so you know in advance how big of an array to initialize
 
 DATA_COLUMNS_PATIENT: list["str"] = [
     "patient_ID",
@@ -369,6 +373,7 @@ SIMULATION_PARAMETERS: dict[str, Any] = {
     "FT_BOUNDARY": FT_BOUNDARY,
     "TELEPORT_TO_BASE": TELEPORT_TO_BASE,
     "BUSY_FRACTIONS_FILE_NAME": BUSY_FRACTIONS_FILE_NAME,
+    "HAVE_A_QUEUE": HAVE_A_QUEUE,
 }
 SIMULATION_DATA: dict[str, Any] = {
     "DATA_COLUMNS_PATIENT": DATA_COLUMNS_PATIENT,
@@ -380,7 +385,7 @@ if __name__ == "__main__":
     start_time_script = datetime.datetime.now()
 
     if "Toy" in DATA_DIRECTORY:
-        if NUM_AMBULANCES != 10  or PROCESS_TIME != 1440 or not (CALL_LAMBDA == 5/60 or CALL_LAMBDA == 0):
+        if NUM_AMBULANCES != 10   or not (CALL_LAMBDA == 5/60 or CALL_LAMBDA == 0): #or PROCESS_TIME != 1440
             raise Exception(
                 "I think you want to run the toy example, but ambu, lambda, horizon = {NUM_AMBULANCES},{CALL_LAMBDA},{PROCESS_TIME}  while we agreed it should be 10, 5/60 (=5 per hour), 120 mins."
             )
@@ -525,11 +530,16 @@ if __name__ == "__main__":
                 plt.fill_between(time, lower[:, b], upper[:, b], alpha=0.3)#, label=f"Base {b} 95% CI")
             for b in range(2):
                 if CALL_LAMBDA == 0:
-                    plt.plot(time, emsplex_results.Emsplex_time_varying_lambda_8_2_ambus[:, b], label=f"Qplex")
-                    plt.title(f"P(vehicle available at base) with 95% CI and time-varying lambda (average 5 calls/h)")
+                    if PROCESS_TIME == 1440:
+                        plt.plot(time, emsplex_results.Emsplex_time_varying_lambda_8_2_ambus[:, b], label=f"Qplex")
+                        
+                    elif PROCESS_TIME == 180:
+                        plt.plot(time, emsplex_results.Emsplex8_2ambus_timevaryinglambda_first3hours[:, b], label=f"Qplex")
+                    plt.title(f"P(vehicle available at base) with 95% CI and time-varying lambda (average 5 calls/h) and {NUM_RUNS} DES runs")
+
                 else:
                     plt.plot(time, emsplex_results.Emsplex8_2ambus_bugfix[:, b], label=f"Qplex")
-                    plt.title(f"P(vehicle available at base) with 95% CI and {CALL_LAMBDA*60} calls per hour")
+                    plt.title(f"P(vehicle available at base) with 95% CI, {CALL_LAMBDA*60} calls per hour and {NUM_RUNS} DES runs")
                     
             plt.xlabel("Time")
             plt.ylabel("Probability")

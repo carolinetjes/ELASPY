@@ -727,12 +727,15 @@ def patient_generator(
                     SIMULATION_DATA,
                 )
             )
-        else:
-            if SIMULATION_PARAMETERS["PRINT"]:
+        else: # not PATIENT_ASSIGNED
+            
+            if SIMULATION_PARAMETERS["HAVE_A_QUEUE"] and SIMULATION_PARAMETERS["PRINT"]:
                 print(
                     f"Patient {new_patient.patient_ID} cannot be helped by an "
                     f"ambulance. The deque is {patient_queue}."
                 )
+            else:
+                patient_queue.remove(new_patient)
 
     SIMULATION_DATA["TIME_LAST_ARRIVAL"] = env.now
     if SIMULATION_PARAMETERS["PRINT"]:
