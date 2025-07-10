@@ -207,13 +207,13 @@ AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_8_2.csv")
 
 HAVE_A_QUEUE: bool = False # if False, calls arriving when all ambu's are busy, are lost
 
-NUM_RUNS: int = 30000
+NUM_RUNS: int = 30
 PROCESS_TIME: float | None =  180 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
 NUM_AMBULANCES: int = 10
 CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60   #4/60   #1/7.75
 TELEPORT_TO_BASE: bool = True
 SAVE_TRANSIENT_PROBABILITIES: bool = True # use in combination with PROCESS_TYPE = Time, so you know in advance how big of an array to initialize
-SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX: bool = True #this makes ELASPY as close as we can to EMSplex
+SERVICEDURATIONDISCRETE_ASINEMSPLEX: bool = True #this makes ELASPY as close as we can to EMSplex
 ###################################Seed########################################
 START_SEED_VALUE: int | None = 110
 ################################Directories####################################
@@ -374,7 +374,7 @@ SIMULATION_PARAMETERS: dict[str, Any] = {
     "TELEPORT_TO_BASE": TELEPORT_TO_BASE,
     "BUSY_FRACTIONS_FILE_NAME": BUSY_FRACTIONS_FILE_NAME,
     "HAVE_A_QUEUE": HAVE_A_QUEUE,
-    "SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX": SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX,
+    "SERVICEDURATIONDISCRETE_ASINEMSPLEX": SERVICEDURATIONDISCRETE_ASINEMSPLEX,
 }
 SIMULATION_DATA: dict[str, Any] = {
     "DATA_COLUMNS_PATIENT": DATA_COLUMNS_PATIENT,

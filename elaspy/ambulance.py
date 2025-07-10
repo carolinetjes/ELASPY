@@ -3,6 +3,7 @@
 
 import simpy as sp
 import numpy as np
+import sys
 
 from pytest import approx
 from typing import Any, Optional
@@ -543,8 +544,16 @@ class Ambulance:
             If an invalid ``ENGINE_TYPE`` is specified.
 
         """
+        # cj todo remove
+        #Needed to do this to avoid stupid Unicode character discrepancy in SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX'], so use SIMULATION_PARAMETERS[target] instead
+        target = None 
+        for k in SIMULATION_PARAMETERS.keys():
+            if 'SERVICEDURATIONDISCRETE_ASINEMSPLEX' in k:
+                print(f"Found key: '{k}' (len={len(k)})")
+                target = k
+                break
 
-        to_site_travel_time = a if SIMULATION_DATA["SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX"] else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
+        to_site_travel_time = 0 if SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX']  else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
             self.current_location_ID, patient_location_ID
         ]
         SIMULATION_DATA["output_patient"][patient_ID, 8] = to_site_travel_time
@@ -732,7 +741,7 @@ class Ambulance:
 
         """
         # hospital_ID = select_hospital(self.current_location_ID)
-        to_hospital_travel_time = 0 if SIMULATION_DATA["SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX"] else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
+        to_hospital_travel_time = 0 if SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX'] else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
             self.current_location_ID, hospital_location_ID
         ]
         SIMULATION_DATA["output_patient"][

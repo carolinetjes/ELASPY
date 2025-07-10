@@ -219,7 +219,7 @@ def initialize_simulation(
                 " smaller or equal to 0. Please make a change."
             )
 
-        on_site_aid_times = DrawLikeEMSplex(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX'] else generate_service_times(
+        on_site_aid_times = DrawLikeEMSplex(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX'] else generate_service_times(
             SIMULATION_PARAMETERS["AID_PARAMETERS"][0],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][1],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][2],
@@ -228,7 +228,7 @@ def initialize_simulation(
             SIMULATION_PARAMETERS["AID_PARAMETERS"][3],
         ) 
 
-        drop_off_times  = np.zeros(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX'] else generate_service_times(
+        drop_off_times  = np.zeros(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX'] else generate_service_times(
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][0],
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][1],
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][2],
