@@ -544,15 +544,6 @@ class Ambulance:
             If an invalid ``ENGINE_TYPE`` is specified.
 
         """
-        # cj todo remove
-        #Needed to do this to avoid stupid Unicode character discrepancy in SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX'], so use SIMULATION_PARAMETERS[target] instead
-        target = None 
-        for k in SIMULATION_PARAMETERS.keys():
-            if 'SERVICEDURATIONDISCRETE_ASINEMSPLEX' in k:
-                print(f"Found key: '{k}' (len={len(k)})")
-                target = k
-                break
-
         to_site_travel_time = 0 if SIMULATION_PARAMETERS['SERVICEDURATIONDISCRETE_ASINEMSPLEX']  else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
             self.current_location_ID, patient_location_ID
         ]
