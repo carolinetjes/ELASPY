@@ -544,7 +544,7 @@ class Ambulance:
 
         """
 
-        to_site_travel_time = SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
+        to_site_travel_time = a if SIMULATION_DATA["SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX"] else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
             self.current_location_ID, patient_location_ID
         ]
         SIMULATION_DATA["output_patient"][patient_ID, 8] = to_site_travel_time
@@ -732,7 +732,7 @@ class Ambulance:
 
         """
         # hospital_ID = select_hospital(self.current_location_ID)
-        to_hospital_travel_time = SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
+        to_hospital_travel_time = 0 if SIMULATION_DATA["SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX"] else SIMULATION_DATA["SIREN_DRIVING_MATRIX"].loc[
             self.current_location_ID, hospital_location_ID
         ]
         SIMULATION_DATA["output_patient"][

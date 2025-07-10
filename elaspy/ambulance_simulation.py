@@ -17,6 +17,7 @@ from coordinate_methods import (
     select_closest_location_ID,
 )
 import time_varying_lambda 
+from EMSplex_service_duration import create_distribution
 
 def initialize_simulation(
     SIMULATION_PARAMETERS: dict[str, Any], SIMULATION_DATA: dict[str, Any]
@@ -217,16 +218,17 @@ def initialize_simulation(
                 " PROCESS_TIME is too small or PROCESS_NUM_CALLS is"
                 " smaller or equal to 0. Please make a change."
             )
-       
-        on_site_aid_times = generate_service_times(
+
+        on_site_aid_times = DrawLikeEMSplex(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX'] else generate_service_times(
             SIMULATION_PARAMETERS["AID_PARAMETERS"][0],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][1],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][2],
             rng,
             SIMULATION_PARAMETERS["NUM_CALLS"],
             SIMULATION_PARAMETERS["AID_PARAMETERS"][3],
-        )
-        drop_off_times = generate_service_times(
+        ) 
+
+        drop_off_times  = np.zeros(SIMULATION_PARAMETERS["NUM_CALLS"]) if SIMULATION_PARAMETERS['SERVICE_DURATION_DISCRETE_AS_IN_EMSPLEX'] else generate_service_times(
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][0],
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][1],
             SIMULATION_PARAMETERS["DROP_OFF_PARAMETERS"][2],
@@ -285,6 +287,22 @@ def initialize_simulation(
         to_hospital_bool,
         patient_queue,
     )
+
+def DrawLikeEMSplex(vector_length): #returns a vector of integers rounded in the same way as Ton's code (v2)
+    service_duration_pmf = create_distribution(number_of_periods_per_hour=60, shift=10.25/60, tolerance=1e-5)
+    result = np.array([])
+    
+    for i in range(vector_length):
+        cut_off = rnd.uniform(0, 1)
+        probability_mass_so_far = 0
+        for minutes, probability in service_duration_pmf.items():
+            probability_mass_so_far = probability_mass_so_far + probability
+            if probability_mass_so_far > cut_off:
+                result = np.append(result, minutes) #add the number of whole minutes that the service takes
+                break
+
+    #mean_service_duration = sum(k * v for k, v in service_duration_pmf.items()) # in periods (so in this case, minutes)
+    return result
 
 
 def generate_service_times(
