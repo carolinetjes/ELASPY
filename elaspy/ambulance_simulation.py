@@ -289,7 +289,7 @@ def initialize_simulation(
     )
 
 def DrawLikeEMSplex(vector_length): #returns a vector of integers rounded in the same way as Ton's code (v2)
-    service_duration_pmf = create_distribution(number_of_periods_per_hour=60, shift=10.25/60, tolerance=1e-5)
+    service_duration_pmf = create_distribution(number_of_periods_per_hour=60, shift=0, tolerance=1e-5) #use shift 10.25/60 for utrecht
     result = np.array([])
     
     for i in range(vector_length):

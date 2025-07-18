@@ -207,10 +207,10 @@ AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_8_2.csv")
 
 HAVE_A_QUEUE: bool = False # if False, calls arriving when all ambu's are busy, are lost
 
-NUM_RUNS: int = 30
-PROCESS_TIME: float | None =  180 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
+NUM_RUNS: int = 30000
+PROCESS_TIME: float | None =  1440 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
 NUM_AMBULANCES: int = 10
-CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60   #4/60   #1/7.75
+CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60 . alternative lambdas are: #4/60   #1/7.75
 TELEPORT_TO_BASE: bool = True
 SAVE_TRANSIENT_PROBABILITIES: bool = True # use in combination with PROCESS_TYPE = Time, so you know in advance how big of an array to initialize
 SERVICEDURATIONDISCRETE_ASINEMSPLEX: bool = True #this makes ELASPY as close as we can to EMSplex
@@ -532,15 +532,16 @@ if __name__ == "__main__":
             for b in range(2):
                 if CALL_LAMBDA == 0:
                     if PROCESS_TIME == 1440:
-                        plt.plot(time, emsplex_results.Emsplex_time_varying_lambda_8_2_ambus[:, b], label=f"Qplex")
+                        plt.plot(time, emsplex_results.TimeVarying8_2[:, b], label=f"Qplex")
                         
                     elif PROCESS_TIME == 180:
-                        plt.plot(time, emsplex_results.Emsplex8_2ambus_timevaryinglambda_first3hours[:, b], label=f"Qplex")
-                    plt.title(f"P(vehicle available at base) with 95% CI and time-varying lambda (average 5 calls/h) and {NUM_RUNS} DES runs")
+                        plt.plot(time, emsplex_results.H3ServiceDurShiftZero_8_2[:, b], label=f"Qplex") 
+                        #plt.plot(time, emsplex_results.Emsplex8_2ambus_timevaryinglambda_first3hours[:, b], label=f"Qplex")
+                    plt.title(f"P(vehicle available at base), time-varying lambda (average 5 calls/h), {NUM_RUNS} DES runs")
 
                 else:
                     plt.plot(time, emsplex_results.Emsplex8_2ambus_bugfix[:, b], label=f"Qplex")
-                    plt.title(f"P(vehicle available at base) with 95% CI, {CALL_LAMBDA*60} calls per hour and {NUM_RUNS} DES runs")
+                    plt.title(f"P(vehicle available at base), {CALL_LAMBDA*60} calls per hour and {NUM_RUNS} DES runs")
                     
             plt.xlabel("Time")
             plt.ylabel("Probability")
