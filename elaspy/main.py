@@ -203,11 +203,11 @@ ROOT_DIRECTORY: str = os.path.dirname(os.path.dirname(__file__))
 
 ###################################EMSplex-relevant settings ########################################
 DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "dataToyExample/")
-AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_8_2.csv")
+AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_6_4.csv")
 
 HAVE_A_QUEUE: bool = False # if False, calls arriving when all ambu's are busy, are lost
 
-NUM_RUNS: int = 30000
+NUM_RUNS: int = 5000
 PROCESS_TIME: float | None =  1440 #1440 = one day, that's the horizon we agreed with Ton. Nanne used 720 (720 mins = 12 hours)
 NUM_AMBULANCES: int = 10
 CALL_LAMBDA: float | None = 0    #setting this to 0 takes time-varying lambda 5/60 . alternative lambdas are: #4/60   #1/7.75
@@ -532,12 +532,26 @@ if __name__ == "__main__":
             for b in range(2):
                 if CALL_LAMBDA == 0:
                     if PROCESS_TIME == 1440:
-                        plt.plot(time, emsplex_results.TimeVarying8_2[:, b], label=f"Qplex")
+                        emsplexresult = [] #init
+                        if AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_8_2.csv":
+                            emsplexresult = emsplex_results.TimeVarying8_2[:, b]
+                        elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_7_3.csv": 
+                            emsplexresult = emsplex_results.TimeVarying7_3[:, b]
+                        elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_6_4.csv": 
+                            emsplexresult = emsplex_results.TimeVarying6_4[:, b]
+                        elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_5_5.csv": 
+                            emsplexresult = emsplex_results.TimeVarying5_5[:, b]
+                        elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_9_1.csv": 
+                            emsplexresult = emsplex_results.TimeVarying9_1[:, b]
+
+                        plt.plot(time, emsplexresult, label=f"Qplex")
                         
                     elif PROCESS_TIME == 180:
                         plt.plot(time, emsplex_results.H3ServiceDurShiftZero_8_2[:, b], label=f"Qplex") 
                         #plt.plot(time, emsplex_results.Emsplex8_2ambus_timevaryinglambda_first3hours[:, b], label=f"Qplex")
-                    plt.title(f"P(vehicle available at base), time-varying lambda (average 5 calls/h), {NUM_RUNS} DES runs")
+
+                    ambu_string_for_caption = "_".join(AMBULANCE_BASE_LOCATIONS_FILE.split("_")[2:])
+                    plt.title(f"P(vehicle available at base), time-varying lambda (average 5 calls/h), {NUM_RUNS} DES runs, ambus {ambu_string_for_caption}")
 
                 else:
                     plt.plot(time, emsplex_results.Emsplex8_2ambus_bugfix[:, b], label=f"Qplex")
