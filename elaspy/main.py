@@ -198,10 +198,12 @@ from plot_functions import (
 )
 
 import emsplex_results
+import elaspy_results
 
 ROOT_DIRECTORY: str = os.path.dirname(os.path.dirname(__file__))
 
 ###################################EMSplex-relevant settings ########################################
+PLOT_STORED_DES_RESULTS = False #plots stored results from elaspy_results.py. Else it simulates again and plots those means + conf intervals
 DATA_DIRECTORY: str = os.path.join(ROOT_DIRECTORY, "dataToyExample/")
 AMBULANCE_BASE_LOCATIONS_FILE: str = ("Base_Locations_9_1.csv")
 
@@ -513,25 +515,28 @@ if __name__ == "__main__":
     )
     if NUM_RUNS > 1:
         if SIMULATION_PARAMETERS["SAVE_TRANSIENT_PROBABILITIES"]:
-            transient_probabilities = np.stack(transient_probabilities) 
-            mean_across_runs = np.mean(transient_probabilities, axis=0)
-            np.set_printoptions(threshold=np.inf)  # disables truncation
-            std_err = stats.sem(transient_probabilities, axis=0)
-            confidence = 0.95  # 95% confidence intervals using t-distribution
-            df = transient_probabilities.shape[0] - 1  # degrees of freedom 
-            t_crit = stats.t.ppf((1 + confidence) / 2., df)  # close to 1.96 for large df
-            
-            margin_of_error = t_crit * std_err
-            lower = mean_across_runs - margin_of_error
-            upper = mean_across_runs + margin_of_error
-            time = np.arange(transient_probabilities.shape[1])
-
-            print(' '.join(f"[{mean_across_runs[t,0]},{mean_across_runs[t,1]}]," for t in time)) #for storing so we don't have to do these huge runs again
-
             plt.figure(figsize=(10, 5))
-            for b in range(2):
-                plt.plot(time, mean_across_runs[:, b], label=f"Base {b} DES")
-                plt.fill_between(time, lower[:, b], upper[:, b], alpha=0.3)#, label=f"Base {b} 95% CI")
+            transient_probabilities = np.stack(transient_probabilities) 
+            time = np.arange(transient_probabilities.shape[1])
+            
+            if not PLOT_STORED_DES_RESULTS:
+                mean_across_runs = np.mean(transient_probabilities, axis=0)
+                np.set_printoptions(threshold=np.inf)  # disables truncation
+                std_err = stats.sem(transient_probabilities, axis=0)
+                confidence = 0.95  # 95% confidence intervals using t-distribution
+                df = transient_probabilities.shape[0] - 1  # degrees of freedom 
+                t_crit = stats.t.ppf((1 + confidence) / 2., df)  # close to 1.96 for large df
+                
+                margin_of_error = t_crit * std_err
+                lower = mean_across_runs - margin_of_error
+                upper = mean_across_runs + margin_of_error
+                
+                print(' '.join(f"[{mean_across_runs[t,0]},{mean_across_runs[t,1]}]," for t in time)) #print for manual storing so we don't have to do these huge runs again
+                
+                for b in range(2):
+                    plt.plot(time, mean_across_runs[:, b], label=f"Base {b} DES")
+                    plt.fill_between(time, lower[:, b], upper[:, b], alpha=0.3)#, label=f"Base {b} 95% CI")
+                
             for b in range(2):
                 if CALL_LAMBDA == 0:
                     if PROCESS_TIME == 1440:
@@ -548,6 +553,19 @@ if __name__ == "__main__":
                             emsplexresult = emsplex_results.TimeVarying9_1[:, b]
 
                         plt.plot(time, emsplexresult, label=f"Qplex")
+                        if PLOT_STORED_DES_RESULTS:
+                            if AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_8_2.csv":
+                                elaspyresult = elaspy_results.TimeVarying8_2[:, b]
+                            elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_7_3.csv": 
+                                elaspyresult = elaspy_results.TimeVarying7_3[:, b]
+                            elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_6_4.csv": 
+                                elaspyresult = elaspy_results.TimeVarying6_4[:, b]
+                            elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_5_5.csv": 
+                                elaspyresult = elaspy_results.TimeVarying5_5[:, b]
+                            elif AMBULANCE_BASE_LOCATIONS_FILE == "Base_Locations_9_1.csv": 
+                                elaspyresult = elaspy_results.TimeVarying9_1[:, b]
+                            plt.plot(time, elaspyresult, label=f"Base {b} DES as stored")
+
                         plt.ylim(0.38, 1)
 
                         

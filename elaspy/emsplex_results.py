@@ -1,6 +1,6 @@
 import numpy as np
 
-#the following all have lambda 5 calls per hour, unless name says otherwise:
+#the following are for the toy example, with on average 5 calls per hour
 
 
 #the following is a full day (1440 mins) timevarying lambda, servicedur shift zero and updated q file from Ton 21 July 2025
